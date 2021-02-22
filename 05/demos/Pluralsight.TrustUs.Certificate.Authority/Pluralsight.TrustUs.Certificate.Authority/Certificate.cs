@@ -14,7 +14,19 @@ namespace Pluralsight.TrustUs
     {
         public static int CreateCaCertificate(KeyConfiguration configuration, int keyContext)
         {
-            
+            var certificate = crypt.CreateCert(crypt.UNUSED, configuration.CertificateType);
+
+            crypt.SetAttribute(certificate, crypt.CERTINFO_SUBJECTPUBLICKEYINFO, keyContext);
+            crypt.SetAttribute(certificate, crypt.CERTINFO_COUNTRYNAME, configuration.DistinguishName.Country);
+            crypt.SetAttribute(certificate, crypt.CERTINFO_STATEPROVINCENAME, configuration.DistinguishName.State);
+            crypt.SetAttribute(certificate, crypt.CERTINFO_LOCALITYNAME, configuration.DistinguishName.Locality);
+            crypt.SetAttribute(certificate, crypt.CERTINFO_ORGANIZTIONNAME, configuration.DistinguishName.Organization);
+            crypt.SetAttribute(certificate, crypt.CERTINFO_ORGANIZTIONALUNITNAME, configuration.DistinguishName.OrganizationalUnit);
+            crypt.SetAttribute(certificate, crypt.CERTINFO_COMMONNAME, configuration.DistinguishName.CommonName);
+
+            crypt.SetAttribute(certificate, crypt.CERTINFO_CA, 1);
+
+            return certificate;            
         }
 
         public static byte[] ExportCertificate(int certificateHandle)

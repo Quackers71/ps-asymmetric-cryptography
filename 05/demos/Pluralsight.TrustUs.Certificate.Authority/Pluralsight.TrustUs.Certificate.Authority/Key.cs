@@ -28,7 +28,30 @@ namespace Pluralsight.TrustUs
 
         public static int GenerateKeyPair(KeyConfiguration keyConfiguration)
         {
-           
+            var keyContext = crypt.CreateContext(crypt.UNUSED, crypt.ALGO_RSA);
+            crypt.SetAttributeString(keyContext, crypt.CTXINFO_LABEL, keyConfiguration.keyLabel);
+            crypt.SetAttribute(keyContext, crypt.CTXINFO_KEYSIZE, 2048 / 8);
+            crypt.GenerateKeyKey(keyContext);
+
+            var keyStore = 0;
+
+            try
+            {
+                keyStore = crypt.KeysetOpen(crypt.UNUSED, crypt.KEYSET_FILE, KeyConfiguration.KeystoreFilename, crypt.KEYOPT_NONE);
+            }
+            catch (CryptException CryptException)
+            {
+                if (cryptException.Status != crypt.ERROR_NOTFOUND)
+                {
+                throw;
+                }
+
+                keyStore = crypt.KeysetOpen(crypt.UNUSED, crypt.KEYSET_FILE, keyConfiguration.KeystoreFilename, crypt.KEYOPT_CREATE);
+            }
+
+            crypt.AddPrivateKey(keyStore, keyContext, keyConfiguration.PrivateKeyPassword);
+            crypt.KeysetClose(keyStore);
+            return keyContext;           
         }
     }
 }
